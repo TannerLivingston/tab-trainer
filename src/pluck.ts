@@ -37,3 +37,10 @@ export function pluck(midi: number, volume = 0.8) {
   src.connect(gain).connect(ctx.destination);
   src.start();
 }
+
+/** Drop the audio engine (e.g. after the browser stalled it); the next pluck starts a fresh one. */
+export function resetPluck() {
+  ctx?.close().catch(() => {});
+  ctx = null;
+  cache.clear();
+}

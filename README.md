@@ -8,7 +8,6 @@ Parsing, engraving and synthesis come from [alphaTab](https://www.alphatab.net) 
 
 ```bash
 npm install
-npm run fetch-sounds   # optional: downloads the 32 MB "Studio" sound bank (GeneralUser GS)
 npm run dev
 ```
 

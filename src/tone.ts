@@ -102,7 +102,7 @@ export function setTone(t: Tone) {
   chains.forEach(apply);
 }
 
-/** True when the studio sound bank has been downloaded (`npm run fetch-sounds`). */
+/** True when the studio sound bank is present (it lives in public/sounds/; `npm run fetch-sounds` restores it). */
 export async function studioBankAvailable(): Promise<boolean> {
   try {
     const r = await fetch(SOUND_BANKS.studio, { method: 'HEAD' });

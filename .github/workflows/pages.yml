@@ -29,9 +29,6 @@ jobs:
 
       - run: npm ci
 
-      # The Studio sound bank isn't kept in git; download it from its author's repository.
-      - run: npm run fetch-sounds
-
       - name: Type-check and unit tests
         run: npm run check
 

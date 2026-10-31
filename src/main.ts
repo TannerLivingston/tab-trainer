@@ -5,7 +5,7 @@ import { chordDiagram, collectChords, type ChordList } from './chords';
 import { Fretboard, type FretNote } from './fretboard';
 import { BarNotes } from './notes';
 import { Overview, TRACK_COLORS } from './overview';
-import { pluck } from './pluck';
+import { pluck, resetPluck } from './pluck';
 import { unpackTitle } from './scoreInfo';
 import { isRetabbed, originalTuning, PRESETS, restore as restoreTab, retab } from './retab';
 import { attach, captureOriginal, deleteRecording, describeSync, detach, loadRecording, saveRecording, shift, startOnly, syncFromTaps, type Original, type Recording } from './playalong';
@@ -1554,8 +1554,82 @@ $('stopBtn').onclick = stopPlayback;
 $('prevBar').onclick = () => stepBar(-1);
 $('nextBar').onclick = () => stepBar(1);
 
+// ---------------------------------------------------------------------------
+// Audio watchdog: Safari can leave Web Audio stalled after the Mac sleeps or the output device
+// changes. Once playback starts, check the synth's audio clock is moving. If it isn't, wake it;
+// failing that, start a fresh audio engine; and if even that stays stalled, say how to get sound
+// back (only quitting the browser helps then).
+// ---------------------------------------------------------------------------
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+let audioCheckTimer = 0;
+let audioRebuilt = false;
+
+/** alphaTab's Web Audio context (not in its typed API; absent when playing a recording). */
+function synthContext(): AudioContext | null {
+  return (api.player?.output as { context?: AudioContext | null } | undefined)?.context ?? null;
+}
+async function audioFlowing(ctx: AudioContext) {
+  if (ctx.state !== 'running') return false;
+  const t0 = ctx.currentTime;
+  await sleep(400);
+  return ctx.currentTime > t0;
+}
+async function checkAudio() {
+  const ctx = synthContext();
+  if (!ctx || !isPlaying()) return;
+  if (await audioFlowing(ctx)) return void (audioRebuilt = false);
+  // Safari's "interrupted" state needs a resume(), which can also hang; don't wait on it forever.
+  await Promise.race([ctx.resume().catch(() => {}), sleep(800)]);
+  if (!isPlaying() || synthContext() !== ctx) return;
+  if (await audioFlowing(ctx)) return void (audioRebuilt = false);
+  if (!audioRebuilt) return rebuildAudio();
+  setPlaying(false);
+  const safari = /^((?!chrome|chromium|android).)*safari/i.test(navigator.userAgent);
+  toast(
+    safari
+      ? "Safari's audio has stopped working. Quit Safari completely (⌘Q) and reopen it to get the sound back."
+      : "The browser's audio has stopped working. Close the browser completely and reopen it to get the sound back.",
+    { key: 'audio', ms: 15000 },
+  );
+}
+/** Replace alphaTab's player, and with it the AudioContext. Volume, speed and looping carry over. */
+async function rebuildAudio() {
+  audioRebuilt = true;
+  const tick = api.tickPosition;
+  const range = api.playbackRange;
+  // Pause first so the app sees playback stop; a stalled player may never confirm it.
+  await new Promise<void>((done) => {
+    let off: (() => void) | undefined;
+    const finish = () => {
+      clearTimeout(timer);
+      off?.();
+      done();
+    };
+    const timer = setTimeout(finish, 1000);
+    api.pause();
+    off = api.playerStateChanged.on((e) => e.state === alphaTab.synth.PlayerState.Paused && finish());
+  });
+  api.settings.player.playerMode = alphaTab.PlayerMode.Disabled;
+  api.updateSettings();
+  api.settings.player.playerMode = alphaTab.PlayerMode.EnabledSynthesizer;
+  api.updateSettings();
+  resetPluck();
+  loadSoundBank(activeTone());
+  api.loadMidiForScore();
+  if (waitMuted && api.score) api.changeTrackMute([api.score.tracks[waitMuted.track]], true);
+  toast('The audio had stalled, so it was restarted. Press play to carry on.', { key: 'audio', ms: 6000 });
+  // The new player only takes a position once its sounds and MIDI are in.
+  for (let i = 0; i < 100 && !api.isReadyForPlayback; i++) await sleep(100);
+  if (isPlaying()) return;
+  api.playbackRange = range;
+  api.tickPosition = tick;
+}
+
 api.playerStateChanged.on((e) => {
   const playing = e.state === alphaTab.synth.PlayerState.Playing;
+  clearTimeout(audioCheckTimer);
+  if (playing) audioCheckTimer = window.setTimeout(checkAudio, 600);
   app.classList.toggle('playing', playing);
   practiceLog.setPlaying(playing);
   keepAwake(playing);
