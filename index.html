@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Tab Trainer</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2a33a'/%3E%3Cg transform='translate%2816 16%29 scale%281.25%29 translate%28-12 -12%29' fill='none' stroke='%2314161a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15.42 8.57C14.72 9.09 12.01 6.99 9.88 9.12C8.85 10.15 8.91 11.07 8.3 11.67C7.69 12.28 5.57 11.13 4.11 12.59C2.34 14.35 3.07 17.51 4.78 19.21C6.48 20.92 9.64 21.65 11.4 19.88C12.86 18.42 11.71 16.3 12.32 15.69A2.84 2.84 0 0 0 13.1 13.19' /%3E%3Cpath d='M14.14 9.85L18.7 5.29' /%3E%3Cpath d='M18.34 4.92L20.04 3.22L20.77 3.95L19.07 5.65Z' /%3E%3C/g%3E%3C/svg%3E" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
+    <meta name="theme-color" content="#181b20" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app" class="no-score">
+      <header class="topbar">
+        <button class="icon-btn" id="sidebarToggle" title="Show / hide sidebar (B)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16" /></svg>
+        </button>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15.42 8.57C14.72 9.09 12.01 6.99 9.88 9.12C8.85 10.15 8.91 11.07 8.3 11.67C7.69 12.28 5.57 11.13 4.11 12.59C2.34 14.35 3.07 17.51 4.78 19.21C6.48 20.92 9.64 21.65 11.4 19.88C12.86 18.42 11.71 16.3 12.32 15.69A2.84 2.84 0 0 0 13.1 13.19" /><path d="M14.14 9.85L18.7 5.29" /><path d="M18.34 4.92L20.04 3.22L20.77 3.95L19.07 5.65Z" /></svg></span>
+          <span class="brand-name">Tab Trainer</span>
+        </div>
+        <button class="goal-ring" id="goalRing" title="Today's practice">
+          <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="gr-track" /><circle cx="18" cy="18" r="15" class="gr-fill" id="goalFill" /></svg>
+          <span id="goalText">0</span>
+        </button>
+        <div class="song-head">
+          <h1 class="song-title" id="songTitle">No song loaded</h1>
+          <div class="song-artist" id="songArtist">Open a Guitar Pro file to start practicing</div>
+        </div>
+        <div class="top-actions">
+          <div class="segmented" id="viewMode" title="Notation">
+            <button data-value="default" class="active">Score + Tab</button>
+            <button data-value="tab">Tab</button>
+            <button data-value="score">Score</button>
+          </div>
+          <div class="segmented" id="layoutMode" title="Layout">
+            <button data-value="page" class="active" title="Page layout">
+              <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>
+            </button>
+            <button data-value="horizontal" title="Single-line layout with smooth scrolling">
+              <svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="2" /><path d="M7 8v8M12 8v8M17 8v8" /></svg>
+            </button>
+          </div>
+          <div class="zoom">
+            <button class="icon-btn" id="zoomOut" title="Zoom out (-)"><svg viewBox="0 0 24 24"><path d="M6 12h12" /></svg></button>
+            <span id="zoomLabel" class="zoom-label">100%</span>
+            <button class="icon-btn" id="zoomIn" title="Zoom in (=)"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12" /></svg></button>
+          </div>
+          <button class="icon-btn" id="standBtn" title="Music-stand mode: full screen, screen stays on">
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+          </button>
+          <div class="dropdown">
+            <button class="icon-btn" id="displayBtn" title="Display options">
+              <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
+            </button>
+            <div class="menu display-menu" id="displayMenu">
+              <div class="phone-only">
+                <div class="menu-label">Notation</div>
+                <div class="menu-row">
+                  <div class="segmented small wide" id="viewModeM">
+                    <button data-value="default">Score + Tab</button><button data-value="tab">Tab</button><button data-value="score">Score</button>
+                  </div>
+                </div>
+                <div class="menu-row">
+                  <div class="segmented small wide" id="layoutModeM">
+                    <button data-value="page">Page</button><button data-value="horizontal">Single line</button>
+                  </div>
+                  <div class="zoom">
+                    <button class="icon-btn" id="zoomOutM" title="Zoom out"><svg viewBox="0 0 24 24"><path d="M6 12h12" /></svg></button>
+                    <span class="zoom-label">100%</span>
+                    <button class="icon-btn" id="zoomInM" title="Zoom in"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12" /></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="menu-label">Interface</div>
+              <div class="menu-row">
+                <div class="segmented small wide" id="appTheme">
+                  <button data-value="auto" title="Follow your device's light/dark setting">Auto</button>
+                  <button data-value="dark">Dark</button>
+                  <button data-value="light">Light</button>
+                </div>
+              </div>
+              <div class="menu-label">Sheet</div>
+              <div class="swatches" id="themeSwatches">
+                <button data-value="paper" class="sw-paper"><i></i>Paper</button>
+                <button data-value="sepia" class="sw-sepia"><i></i>Sepia</button>
+                <button data-value="night" class="sw-night"><i></i>Night</button>
+              </div>
+              <label class="menu-row switch-row"><span>Follow playback (auto-scroll)</span><input type="checkbox" id="followToggle" /><i class="switch"></i></label>
+              <div class="menu-label">Playback tone</div>
+              <div class="menu-row">
+                <div class="segmented small wide" id="toneMode">
+                  <button data-value="studio" title="Sampled guitars, bass and drums with room reverb (T)">Studio</button>
+                  <button data-value="basic" title="Dry General MIDI sound for clean, analytic listening (T)">Basic MIDI</button>
+                </div>
+              </div>
+              <div class="menu-label">Fretboard</div>
+              <div class="menu-row">
+                <span>Labels</span>
+                <div class="segmented small" id="fbLabels">
+                  <button data-value="notes" class="active">Notes</button>
+                  <button data-value="frets">Frets</button>
+                </div>
+              </div>
+              <label class="menu-row switch-row"><span>Left-handed</span><input type="checkbox" id="leftyToggle" /><i class="switch"></i></label>
+              <div class="menu-label">Foot pedal</div>
+              <div class="pedal-row">
+                <span>Left</span>
+                <button class="kbd-btn" data-pedal="left" title="Click, then press the pedal to teach it"></button>
+                <select class="select" data-pedal-action="left"></select>
+              </div>
+              <div class="pedal-row">
+                <span>Right</span>
+                <button class="kbd-btn" data-pedal="right" title="Click, then press the pedal to teach it"></button>
+                <select class="select" data-pedal-action="right"></select>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown library">
+            <button class="btn" id="libraryBtn">
+              <svg viewBox="0 0 24 24"><path d="M4 5h6l2 2h8v12H4z" /></svg>
+              <span>Songs</span>
+            </button>
+            <div class="menu" id="libraryMenu"></div>
+          </div>
+          <button class="btn primary" id="openBtn">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" /></svg>
+            <span>Open file</span>
+          </button>
+          <div class="dropdown">
+            <button class="icon-btn" id="moreBtn" title="More">
+              <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3" class="fill" /><circle cx="12" cy="12" r="1.3" class="fill" /><circle cx="19" cy="12" r="1.3" class="fill" /></svg>
+            </button>
+            <div class="menu more-menu" id="moreMenu">
+              <button class="menu-item" id="installBtn" hidden><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" /><path d="M12 8v7M9 12l3 3 3-3" /></svg>Install app (works offline)</button>
+              <button class="menu-item" id="printBtn"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z" /></svg>Print / save as PDF</button>
+              <button class="menu-item" id="midiBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>Export MIDI</button>
+              <button class="menu-item" id="tunerMenuBtn"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0" /><path d="M12 16l4-6" /></svg>Tuner <kbd>U</kbd></button>
+              <button class="menu-item" id="progressMenuBtn"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>Practice progress <kbd>P</kbd></button>
+              <button class="menu-item" id="backupBtn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 19h16" /></svg>Back up practice data</button>
+              <button class="menu-item" id="restoreBtn"><svg viewBox="0 0 24 24"><path d="M12 21V9M7 14l5-5 5 5M4 5h16" /></svg>Restore from backup…</button>
+              <input type="file" id="restoreInput" accept=".json,application/json" hidden />
+              <button class="menu-item" id="helpBtn"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" /><path d="M6 10h0M10 10h0M14 10h0M18 10h0M7 14h10" /></svg>Keyboard shortcuts <kbd>?</kbd></button>
+              <button class="menu-item" id="aboutBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></svg>About &amp; credits</button>
+            </div>
+          </div>
+          <input type="file" id="fileInput" accept=".gp,.gpx,.gp3,.gp4,.gp5,.gp7,.gp8,.xml,.musicxml,.mxl" hidden />
+        </div>
+      </header>
+
+      <aside class="sidebar" id="sidebar" aria-label="Tracks and practice tools">
+        <section class="panel">
+          <div class="panel-head">
+            <h2 class="ph">Tracks</h2>
+            <span class="hint">click to view · ⌘/ctrl-click to stack</span>
+          </div>
+          <ul class="track-list" id="trackList"></ul>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2 class="ph">Practice</h2><button class="link-btn" id="progressBtn" title="Practice time and passage speeds (P)">Progress ›</button></div>
+          <div class="practice-row">
+            <span class="pr-label">Pitch</span>
+            <div class="stepper">
+              <button id="pitchDown" title="Lower playback a semitone">−</button>
+              <span id="pitchLabel">0</span>
+              <button id="pitchUp" title="Raise playback a semitone">+</button>
+            </div>
+          </div>
+          <div class="practice-row">
+            <span class="pr-label">Tab for</span>
+            <select class="select" id="retabSelect" title="Rewrite the frets for another tuning; pitches stay the same"></select>
+          </div>
+          <div class="tuning-tip" id="tuningTip" hidden></div>
+          <div class="practice-row loops-head">
+            <span class="pr-label">Saved loops</span>
+            <button class="link-btn" id="saveLoopBtn" disabled title="Select bars first (drag on the sheet or the overview)">+ Save loop</button>
+          </div>
+          <ul class="saved-loops" id="savedLoops"><li class="empty-note">Drag across bars (or press 1, 2, 4 or 8) to loop them, then save the loop here.</li></ul>
+          <div class="practice-row loops-head rec-head">
+            <span class="pr-label">Your recording</span>
+            <button class="link-btn" id="recLoadBtn" title="Load an MP3/M4A of the song and sync it to the tab">+ Load audio</button>
+          </div>
+          <div class="rec-info" id="recInfo"></div>
+          <input type="file" id="recInput" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac" hidden />
+          <div class="practice-row loops-head notes-head">
+            <span class="pr-label">Bar notes</span>
+            <button class="link-btn" id="addNoteBtn" title="Pin a note to the current bar (N)">+ Add note</button>
+          </div>
+          <ul class="bar-notes" id="barNotes"><li class="empty-note">Press N to pin a note to the current bar.</li></ul>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2 class="ph">Song</h2></div>
+          <dl class="song-info" id="songInfo"></dl>
+        </section>
+        <button class="shortcut-hint" id="shortcutHint">Press <kbd>?</kbd> for keyboard shortcuts</button>
+      </aside>
+
+      <main class="stage" aria-label="Sheet music">
+        <div class="viewport" id="viewport" tabindex="0" role="region" aria-label="Sheet music, scrollable">
+          <div class="paper" id="paper">
+            <div id="alphaTab"></div>
+            <div class="pin-layer" id="pinLayer"></div>
+          </div>
+          <div class="empty" id="empty">
+            <div class="empty-card">
+              <div class="empty-icon">
+                <svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="4" /><path d="M16 24h32M16 30h32M16 36h32M16 42h32" /><circle cx="26" cy="30" r="3" /><circle cx="38" cy="36" r="3" /></svg>
+              </div>
+              <h2>Drop a Guitar Pro file here</h2>
+              <p>Supports <b>.gp</b> (GP7/8), <b>.gpx</b> (GP6) and older <b>.gp3/.gp4/.gp5</b> files.</p>
+              <button class="btn primary" id="emptyOpen">Choose a file</button>
+              <div class="empty-samples" id="emptySamples"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tips" id="tips" hidden role="note" aria-label="Getting started">
+          <div class="tips-head"><b>Getting started</b><button class="icon-btn" id="tipsClose" title="Dismiss tips"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+          <ul>
+            <li><kbd>Space</kbd> plays and pauses; click any note to jump there</li>
+            <li>Drag across bars, or press <kbd>4</kbd>, to loop a passage</li>
+            <li><kbd>[</kbd> <kbd>]</kbd> slow it down or speed it up; try the Trainer</li>
+            <li><kbd>F</kbd> shows the fretboard, <kbd>K</kbd> the chord sheet</li>
+          </ul>
+          <button class="link-btn" id="tipsMore">All shortcuts (?)</button>
+        </div>
+        <div class="count-in" id="countIn"></div>
+        <div class="wait-pill" id="waitPill"></div>
+        <div class="drop-overlay" id="dropOverlay"><div>Drop to open</div></div>
+        <div class="loading" id="loading"><div class="spinner"></div><span id="loadingText">Loading…</span></div>
+      </main>
+
+      <section class="chords-panel" id="chordsPanel" aria-label="Chord sheet">
+        <div class="fretboard-head">
+          <span class="fb-title">Chords</span>
+          <span class="fb-track" id="chordsTrack"></span>
+          <span class="fb-legend"><span class="fb-tip">click a chord to hear it and jump to its first bar</span></span>
+        </div>
+        <div class="chords-strip" id="chordsStrip"></div>
+      </section>
+
+      <section class="fretboard-panel" id="fretboardPanel" aria-label="Fretboard">
+        <div class="fretboard-head">
+          <span class="fb-title">Fretboard</span>
+          <span class="fb-track" id="fbTrack"></span>
+          <button class="link-btn fb-tuner" id="fbTunerBtn" title="Tune up with the microphone (U)">Tuner</button>
+          <span class="fb-legend">
+            <i class="lg note"></i>now <i class="lg next"></i>next <i class="lg harm"></i>harmonic <i class="lg dead"></i>muted
+            <span class="fb-tip">· click any fret to hear it</span>
+          </span>
+        </div>
+        <div class="fretboard" id="fretboard"></div>
+      </section>
+
+      <div class="stand-bar" id="standBar">
+        <button class="icon-btn" id="standExit" title="Leave music-stand mode (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+        <span class="sb-sep"></span>
+        <button class="icon-btn" id="standPrev" title="Previous bar"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg></button>
+        <button class="play" id="standPlay" title="Play / pause">
+          <svg viewBox="0 0 24 24" class="i-play"><path d="M8 5l12 7-12 7z" class="fill" /></svg>
+          <svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z" class="fill" /></svg>
+        </button>
+        <button class="icon-btn" id="standNext" title="Next bar"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></button>
+        <span class="sb-sep"></span>
+        <button class="toggle" id="standLoop" title="Loop"><svg viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M3 11V9a4 4 0 0 1 4-4h13M7 22l-3-3 3-3M21 13v2a4 4 0 0 1-4 4H4" /></svg></button>
+        <button class="icon-btn" id="standSlower" title="Slower">−</button>
+        <span class="sb-speed" id="standSpeed">100%</span>
+        <button class="icon-btn" id="standFaster" title="Faster">+</button>
+      </div>
+
+      <footer class="transport">
+        <div class="overview" id="overview"></div>
+        <div class="sections" id="sections"></div>
+        <div class="section-pop" id="sectionPop" hidden>
+          <span class="sp-title"></span>
+          <input type="text" maxlength="40" aria-label="Section name" />
+          <button class="btn primary sp-save">Save</button>
+          <button class="link-btn danger sp-remove">Remove</button>
+          <button class="link-btn sp-cancel">Cancel</button>
+        </div>
+        <div class="scrub">
+          <span class="time" id="timeCur">0:00</span>
+          <div class="scrub-track" id="scrub" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00" tabindex="0">
+            <div class="scrub-range" id="scrubRange"></div>
+            <div class="scrub-fill" id="scrubFill"></div>
+            <div class="scrub-thumb" id="scrubThumb"></div>
+          </div>
+          <span class="time" id="timeEnd">0:00</span>
+        </div>
+        <div class="controls">
+          <div class="ctl-group">
+            <button class="icon-btn" id="stopBtn" title="Back to start (Enter)">
+              <svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z" class="fill" /></svg>
+            </button>
+            <button class="icon-btn" id="prevBar" title="Previous bar (←)">
+              <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg>
+            </button>
+            <button class="play" id="playBtn" title="Play / pause (Space)" disabled>
+              <svg viewBox="0 0 24 24" class="i-play"><path d="M8 5l12 7-12 7z" class="fill" /></svg>
+              <svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z" class="fill" /></svg>
+            </button>
+            <button class="icon-btn" id="nextBar" title="Next bar (→)">
+              <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+
+          <div class="position">
+            <div><span class="label">Bar</span><span class="val" id="posBar">–</span></div>
+            <div><span class="label">Time</span><span class="val" id="posSig">–</span></div>
+            <div><span class="label">Tempo</span><span class="val" id="posTempo">–</span></div>
+            <div class="pos-section"><span class="label">Section</span><span class="val" id="posSection">–</span></div>
+          </div>
+
+          <div class="ctl-group toggles">
+            <button class="toggle" id="loopBtn" title="Loop selection or section (L)">
+              <svg viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M3 11V9a4 4 0 0 1 4-4h13M7 22l-3-3 3-3M21 13v2a4 4 0 0 1-4 4H4" /></svg>
+              <span>Loop</span>
+            </button>
+            <div class="trainer-wrap">
+              <button class="toggle" id="trainerBtn" title="Speed trainer: speeds up after every loop">
+                <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" /></svg>
+                <span>Trainer</span>
+              </button>
+              <div class="popover" id="trainerPop">
+                <div class="pop-title">Speed trainer</div>
+                <p>Each time the loop repeats, speed goes up until it reaches the target.</p>
+                <label>Start <input type="number" id="trStart" min="25" max="200" step="5" value="60" />%</label>
+                <label>Step <input type="number" id="trStep" min="1" max="25" step="1" value="5" />%</label>
+                <label>Target <input type="number" id="trTarget" min="25" max="200" step="5" value="100" />%</label>
+              </div>
+            </div>
+            <button class="toggle" id="countInBtn" title="Count-in before playback (C)">
+              <svg viewBox="0 0 24 24"><path d="M12 7v5l3 2" /><circle cx="12" cy="12" r="9" /></svg>
+              <span>Count-in</span>
+            </button>
+            <button class="toggle" id="metroBtn" title="Metronome (M)">
+              <svg viewBox="0 0 24 24"><path d="M9 3h6l4 18H5zM12 17l5-9" /></svg>
+              <span>Metronome</span>
+            </button>
+            <button class="toggle" id="waitBtn" title="Wait mode: playback waits until the microphone hears your note (W)">
+              <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
+              <span>Wait</span>
+            </button>
+            <button class="toggle" id="chordsBtn" title="Chord sheet (K)">
+              <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5" /><path d="M9.5 3v18M14.5 3v18M5 8h14M5 13h14" /><circle cx="9.5" cy="10.5" r="1.4" class="fill" /><circle cx="14.5" cy="15.5" r="1.4" class="fill" /></svg>
+              <span>Chords</span>
+            </button>
+            <button class="toggle" id="fretBtn" title="Show fretboard (F)">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="1" /><path d="M7 7v10M12 7v10M17 7v10M2 10h20M2 14h20" /></svg>
+              <span>Fretboard</span>
+            </button>
+            <button class="toggle" id="overviewBtn" title="Arrangement overview (O)">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="4" rx="1" /><rect x="12" y="5" width="9" height="4" rx="1" /><rect x="3" y="11" width="12" height="4" rx="1" /><rect x="8" y="17" width="10" height="3" rx="1" /></svg>
+              <span>Overview</span>
+            </button>
+            <button class="toggle" id="sourceBtn" title="Switch between original audio and MIDI synth" hidden>
+              <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+              <span id="sourceLabel">Audio track</span>
+            </button>
+          </div>
+
+          <div class="speed">
+            <div class="speed-wrap">
+              <button class="speed-label" id="speedPresetsBtn" title="Speed presets">Speed</button>
+              <div class="popover presets" id="speedPresets">
+                <button data-speed="50">50%</button><button data-speed="60">60%</button><button data-speed="75">75%</button>
+                <button data-speed="90">90%</button><button data-speed="100">100%</button><button data-speed="125">125%</button>
+              </div>
+            </div>
+            <input type="range" id="speed" min="25" max="200" step="5" value="100" title="Playback speed (double-click for 100%)" />
+            <span class="val" id="speedLabel">100%</span>
+          </div>
+          <div class="volume">
+            <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" class="fill" /><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" /></svg>
+            <input type="range" id="masterVol" min="0" max="100" value="80" title="Master volume" />
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div class="modal" id="syncModal" hidden>
+      <div class="modal-card">
+        <div class="modal-head"><h2>Sync your recording <span class="modal-sub" id="syncName"></span></h2><button class="icon-btn" id="syncClose"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <ol class="sync-steps">
+          <li>
+            <b>Tap along.</b> Press Start and the recording plays from the very beginning (use +5s to skip a long intro). Tap <kbd>Space</kbd> (or the pad) on the
+            <em>first beat of every bar</em>, starting at bar 1. Tap as long as you like (the more bars, the tighter the sync, especially if the band speeds up), then press Stop.
+            <div class="sync-tap">
+              <button class="btn primary" id="tapStart">Start</button>
+              <button class="tap-pad" id="tapPad" disabled>Tap on beat 1</button>
+              <button class="btn" data-skip="-5" disabled title="Back 5 seconds">−5s</button>
+              <button class="btn" data-skip="5" disabled title="Skip a long intro">+5s</button>
+              <span class="tap-count" id="tapCount"></span>
+            </div>
+          </li>
+          <li>
+            <b>Fine-tune.</b> Preview from bar 1. If the cursor runs ahead of the recording, shift later; if it lags, shift earlier.
+            <div class="nudges">
+              <button class="btn" id="syncPreview">Preview</button>
+              <span class="nudge-label">Shift</span>
+              <button class="btn" data-nudge="-250">−250</button><button class="btn" data-nudge="-50">−50</button><button class="btn" data-nudge="-10">−10</button>
+              <button class="btn" data-nudge="10">+10</button><button class="btn" data-nudge="50">+50</button><button class="btn" data-nudge="250">+250</button>
+              <span class="nudge-label">ms</span>
+            </div>
+          </li>
+        </ol>
+        <div class="sync-status" id="syncStatus"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="tunerModal" hidden>
+      <div class="modal-card tuner-card">
+        <div class="modal-head"><h2>Tuner <span class="modal-sub" id="tunerTuning"></span></h2><button class="icon-btn" id="tunerClose"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <div class="tuner-dial">
+          <svg viewBox="0 0 300 160" class="tuner-svg">
+            <path d="M30 150 A120 120 0 0 1 270 150" class="td-arc" />
+            <path d="M138 31 A120 120 0 0 1 162 31" class="td-zone" />
+            <g id="tunerTicks"></g>
+            <line x1="150" y1="150" x2="150" y2="40" class="td-needle" id="tunerNeedle" />
+            <circle cx="150" cy="150" r="6" class="td-hub" />
+          </svg>
+          <div class="tuner-note" id="tunerNote">–</div>
+          <div class="tuner-cents" id="tunerCents">Play a string</div>
+        </div>
+        <div class="tuner-strings" id="tunerStrings"></div>
+        <p class="tuner-hint">Click a string for a reference note. Uses your microphone; nothing is recorded or sent anywhere.</p>
+      </div>
+    </div>
+
+    <div class="modal" id="progressModal" hidden>
+      <div class="modal-card wide">
+        <div class="modal-head"><h2>Practice progress <span class="modal-sub" id="progressSong"></span></h2><button class="icon-btn" id="progressClose"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <div id="progressBody"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="aboutModal" hidden>
+      <div class="modal-card about-card">
+        <div class="modal-head"><h2>About Tab Trainer</h2><button class="icon-btn" id="aboutClose" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <p>Tab Trainer shows Guitar Pro files as notation and tab and helps you practise them. Everything stays on your device: your files, recordings and practice history are never uploaded.</p>
+        <h4>Built with</h4>
+        <ul class="credits">
+          <li><a href="https://www.alphatab.net" target="_blank" rel="noopener">alphaTab</a> by Daniel Kuschny and contributors: reading, engraving and playback. Mozilla Public License 2.0.</li>
+          <li><a href="https://github.com/steinbergmedia/bravura" target="_blank" rel="noopener">Bravura</a> music font by Steinberg Media Technologies. SIL Open Font License 1.1.</li>
+          <li><a href="https://schristiancollins.com/generaluser.php" target="_blank" rel="noopener">GeneralUser GS</a> sound bank (Studio tone) by S. Christian Collins. GeneralUser GS License v2.0.</li>
+          <li>Sonivox sound bank (Basic tone), © 2004–2006 Sonic Network, Inc. Apache License 2.0.</li>
+          <li><a href="https://rsms.me/inter/" target="_blank" rel="noopener">Inter</a> and <a href="https://www.jetbrains.com/lp/mono/" target="_blank" rel="noopener">JetBrains Mono</a> typefaces. SIL Open Font License 1.1.</li>
+        </ul>
+        <h4>Demo songs</h4>
+        <p>Greensleeves (traditional, 16th century) and Ode to Joy (Beethoven, 1824) are public-domain melodies. Their arrangements here, and the Drop D Groove exercise, were written for Tab Trainer and are dedicated to the public domain (CC0).</p>
+        <p class="about-note">Guitar Pro is a trademark of Arobas Music. Tab Trainer is an independent project, not affiliated with Arobas Music.</p>
+      </div>
+    </div>
+    <div class="modal" id="helpModal" hidden>
+      <div class="modal-card">
+        <div class="modal-head"><h2>Keyboard shortcuts</h2><button class="icon-btn" id="helpClose"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <div class="help-grid">
+          <div>
+            <h4>Playback</h4>
+            <dl>
+              <dt><kbd>Space</kbd></dt><dd>Play / pause</dd>
+              <dt><kbd>Enter</kbd></dt><dd>Back to start</dd>
+              <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next bar</dd>
+              <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>Speed −/+ 5%</dd>
+              <dt><kbd>,</kbd> <kbd>.</kbd></dt><dd>Pitch −/+ 1 semitone</dd>
+              <dt><kbd>M</kbd></dt><dd>Metronome</dd>
+              <dt><kbd>C</kbd></dt><dd>Count-in</dd>
+              <dt><kbd>T</kbd></dt><dd>Tone: Studio / Basic MIDI</dd>
+              <dt><kbd>W</kbd></dt><dd>Wait mode (microphone)</dd>
+              <dt><kbd>U</kbd></dt><dd>Tuner</dd>
+            </dl>
+          </div>
+          <div>
+            <h4>Looping</h4>
+            <dl>
+              <dt>Drag</dt><dd>Select bars to loop (sheet or overview)</dd>
+              <dt><kbd>L</kbd></dt><dd>Loop on / off</dd>
+              <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>4</kbd> <kbd>8</kbd></dt><dd>Loop that many bars from here</dd>
+              <dt><kbd>⇧</kbd><kbd>←</kbd> <kbd>⇧</kbd><kbd>→</kbd></dt><dd>Shrink / grow the loop</dd>
+              <dt><kbd>⇧</kbd><kbd>↑</kbd> <kbd>⇧</kbd><kbd>↓</kbd></dt><dd>Previous / next passage</dd>
+              <dt><kbd>S</kbd></dt><dd>Save the current loop</dd>
+              <dt><kbd>Esc</kbd></dt><dd>Clear the loop</dd>
+              <dt><kbd>N</kbd></dt><dd>Note on the current bar</dd>
+              <dt><kbd>X</kbd></dt><dd>Mark a section here</dd>
+              <dt>Click note</dt><dd>Hear it (while paused)</dd>
+            </dl>
+            <h4>View</h4>
+            <dl>
+              <dt><kbd>F</kbd></dt><dd>Fretboard</dd>
+              <dt><kbd>K</kbd></dt><dd>Chord sheet</dd>
+              <dt><kbd>O</kbd></dt><dd>Arrangement overview</dd>
+              <dt><kbd>B</kbd></dt><dd>Sidebar</dd>
+              <dt><kbd>P</kbd></dt><dd>Practice progress</dd>
+              <dt><kbd>-</kbd> <kbd>=</kbd></dt><dd>Zoom</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

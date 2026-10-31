@@ -1,0 +1,34 @@
+\title "Ode to Joy"
+\subtitle "Lead guitar and bass"
+\artist "Ludwig van Beethoven"
+\music "Ludwig van Beethoven (1824)"
+\copyright "Melody in the public domain. Arrangement written for Tab Trainer, dedicated to the public domain (CC0)."
+\tempo 100
+.
+\track "Lead guitar"
+\instrument 25
+\tuning (E4 B3 G3 D3 A2 E2)
+\ts (4 4)
+\section "Theme" :4 4.4 4.4 0.3 2.3 |
+2.3 0.3 4.4 2.4 |
+0.4 0.4{h} 2.4 4.4 |
+4.4{sl}.4{d} 2.4.8 2.4.2 |
+\section "Answer" :4 4.4 4.4 0.3 2.3 |
+2.3 0.3 4.4 2.4 |
+0.4 0.4{h} 2.4 4.4 |
+2.4.4{d} 0.4.8 0.4.2{v} |
+\section "Harmonics" (12.4{nh} 12.3{nh} 12.2{nh}).1
+.
+\track "Bass"
+\instrument 33
+\tuning (G2 D2 A1 E1)
+\ts (4 4)
+:4 0.2 0.3 0.2 0.3 |
+0.3 0.4 0.3 0.4 |
+0.2 0.3 0.2 0.3 |
+0.3 0.4 0.3 0.4 |
+0.2 0.3 0.2 0.3 |
+0.3 0.4 0.3 0.4 |
+0.2 0.3 0.2 0.3 |
+0.3.2 0.2.2 |
+0.2.1

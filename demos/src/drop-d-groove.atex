@@ -1,0 +1,16 @@
+\title "Drop D Groove"
+\subtitle "Technique study"
+\artist "Tab Trainer"
+\music "Tab Trainer"
+\copyright "Dedicated to the public domain (CC0)."
+\tempo 110
+.
+\track "Electric guitar"
+\instrument 30
+\tuning (E4 B3 G3 D3 A2 D2)
+\ts (4 4)
+\section "Riff" \ro :8 0.6{pm} 0.6{pm} 0.6{pm} (3.6 3.5 3.4) 0.6{pm} 0.6{pm} (5.6 5.5 5.4) (3.6 3.5 3.4) |
+\rc 2 :8 0.6{pm} 0.6{pm} x.6 x.6 (7.6 7.5 7.4).4 (5.6 5.5 5.4).4 |
+\section "Lead" :4 (0.6{lr} 0.5{lr} 0.4{lr}) 5.3 7.3{b (0 4)} 5.3 |
+:8 7.4{h} 9.4 7.4 5.4{sl} 7.4.4 (5.6 5.5 5.4).4 |
+\section "Outro" \tempo 80 (12.4{nh} 12.3{nh} 12.2{nh} 12.1{nh}).1

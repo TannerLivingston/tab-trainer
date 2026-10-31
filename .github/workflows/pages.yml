@@ -1,0 +1,66 @@
+# Builds the app and publishes it to GitHub Pages on every push to main.
+# One-time setup: repository Settings → Pages → Build and deployment → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The Studio sound bank isn't kept in git; download it from its author's repository.
+      - run: npm run fetch-sounds
+
+      - name: Type-check and unit tests
+        run: npm run check
+
+      # A project site is served from /<repo>/; a <user>.github.io repo or a custom domain from /.
+      - name: Work out the site's base path
+        run: |
+          if [[ "${{ github.event.repository.name }}" == *.github.io ]] || [[ -f public/CNAME ]]; then
+            echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          else
+            echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"
+          fi
+
+      - run: npm run build
+
+      # Only the bundled, copyright-free demo songs may be published.
+      - run: node scripts/check-dist.mjs
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

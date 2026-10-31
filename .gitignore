@@ -1,0 +1,10 @@
+node_modules
+dist
+recordings/
+.DS_Store
+public/font/
+public/soundfont/
+public/sounds/
+
+# Your own Guitar Pro files: used locally only, never committed or deployed (they may be copyrighted)
+samples/
